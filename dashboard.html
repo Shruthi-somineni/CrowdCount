@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CrowdCount — Dashboard</title>
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">CS</div>
+        <div class="title">CrowdCount</div>
+      </div>
+
+      <div class="feeds">
+        <div class="feeds-header">
+          <h4>Feeds</h4>
+          <button id="addFeedBtn" class="icon-btn" title="Add feed" aria-label="Add feed"><i class="fa-solid fa-circle-plus"></i></button>
+        </div>
+        <ul id="feedList" class="feed-list">
+          <!-- feed items inserted by JS -->
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="manageFeedsBtn" class="ghost-btn">Manage Feeds</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="topbar">
+        <div class="left-top">
+          <button id="toggleSidebar" class="icon-btn small" title="Toggle sidebar"><i class="fa-solid fa-bars"></i></button>
+          <div class="breadcrumb">Dashboard / <span id="currentFeedName">No Feed Selected</span></div>
+        </div>
+        <div class="user-area">
+          <!-- THEME TOGGLE -->
+          <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
+            <i id="themeIcon" class="fa-solid fa-moon"></i>
+          </button>
+
+          <span class="user-name">Welcome, <strong id="userName">User</strong></span>
+          <button id="logoutBtn" class="btn primary small">⎋ Logout</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <!-- Left: camera/preview card -->
+        <div class="left-column">
+          <div class="card">
+            <div class="card-head">
+              <h3 id="cardTitle">Feed: <span id="feedTitleInline">—</span></h3>
+              <div class="card-actions">
+                <button class="chip active" data-tab="draw" id="tabDraw">Draw Zones</button>
+                <button class="chip" data-tab="preview" id="tabPreview">Preview Zones</button>
+                <button class="chip" data-tab="analysis" id="tabAnalysis">Analysis</button>
+              </div>
+            </div>
+
+            <!-- uploader -->
+            <div class="uploader">
+              <label class="dropzone" id="dropzone">
+                <input id="fileInput" type="file" accept="image/*,video/*" />
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p><strong>Drag & drop</strong> or <span class="linkish">click to upload</span></p>
+                <small class="muted">Supported: mp4, mov, mkv, jpg, png</small>
+              </label>
+              <div class="upload-actions">
+               <button id="uploadBtn" type="button" class="btn">Upload & Process</button>
+                <div id="progress" class="progress" hidden><div class="bar"></div></div>
+              </div>
+            </div>
+
+            <!-- preview area -->
+            <div class="preview-area" id="previewArea">
+              <div class="preview-placeholder" id="previewPlaceholder" aria-hidden="true">
+                <i class="fa-solid fa-eye-slash"></i>
+                <div>Preview Disabled</div>
+              </div>
+
+              <div class="media-wrap" id="mediaWrap" hidden>
+                <video id="videoPreview" controls playsinline muted style="display:none"></video>
+                <img id="imagePreview" alt="preview" style="display:none; max-width:100%; border-radius:8px;">
+                <!-- Canvas sits on top of the video/image for drawing -->
+                <canvas id="zoneCanvas"></canvas>
+
+                <!-- overlay counts for frontend UI (keeps in sync visually with server overlays) -->
+                <div id="overlayCounts" class="overlay-counts" aria-hidden="true"></div>
+              </div>
+
+              <!-- 🟩 Detection summary (added below image/video preview) -->
+              <p id="detectionSummary" style="margin-top:10px; font-weight:600; color:#31c48d;"></p>
+
+              <!-- 🟦 Live crowd video stream (for real-time YOLO detection) -->
+              <video id="liveVideo" autoplay muted controls style="display:none; width:100%; border-radius:10px;"></video>
+              <p id="liveCountText" style="margin-top:10px; font-weight:600; color:#ffb020;"></p>
+            </div>
+
+            <div class="card-foot">
+              <div class="zone-controls">
+                <label class="zone-label">Zone Label:
+                  <input id="zoneLabelInput" type="text" placeholder="Enter zone label (e.g. Entrance)" />
+                </label>
+                <div class="foot-actions">
+                  <button id="startDrawBtn" class="btn-outline">Start Drawing</button>
+                  <button id="saveZonesBtn" class="btn success">Save Zones</button>
+                  <button id="clearZonesBtn" class="btn danger">Clear Zones</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: instructions & zone list -->
+        <aside class="right-column">
+          <div class="card sticky">
+            <h4>Instructions</h4>
+            <ol class="instructions">
+              <li>Upload a video or image (use the uploader).</li>
+              <li>Click <strong>Start Drawing</strong>, enter a label, then drag on the preview to create rectangular zones.</li>
+              <li>Use <strong>Save Zones</strong> to store zones per feed. Preview uses saved zones.</li>
+            </ol>
+            <hr>
+            <h5>Zones</h5>
+            <ul id="zonesList" class="zones-list"></ul>
+            <hr>
+            <h5>Live Counts</h5>
+            <div id="zoneCountsPanel" class="counts-panel">No live stream</div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add Feed Modal -->
+  <div id="addFeedModal" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="addFeedTitle">
+    <div class="modal-card" id="addFeedCard">
+      <h3 id="addFeedTitle">Add New Feed</h3>
+      <label>Feed Name<input id="modalFeedName" /></label>
+      <label>Type
+        <select id="modalFeedType">
+          <option>Image</option>
+          <option>Video File</option>
+        </select>
+      </label>
+      <div class="modal-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="modalSave" class="btn">Add</button>
+        <button id="modalCancel" class="btn-outline">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

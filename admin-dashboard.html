@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard - Crowd Analytics</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="sidebar">
+      <div class="logo">Admin Panel</div>
+      <div class="role">SYSTEM ADMINISTRATION</div>
+      <nav>
+        <ul>
+          <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+          <li><a href="#"><i class="fas fa-cog"></i> System Settings</a></li>
+          <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
+          <li><a href="#"><i class="fas fa-file-alt"></i> Logs</a></li>
+          <li><a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div class="header-top">
+          <h1>Admin Dashboard</h1>
+          <div class="header-actions">
+            <button id="addUser" class="btn secondary"><i class="fas fa-user-plus"></i> Add User</button>
+            <button id="systemBackup" class="btn secondary"><i class="fas fa-database"></i> Backup System</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="total-users">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Active Cameras</div>
+            <div class="stat-value" id="active-cameras">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">System Health</div>
+            <div class="stat-value" id="system-health">100%</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Daily Reports</div>
+            <div class="stat-value" id="daily-reports">0</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-columns">
+        <section class="user-management-section">
+          <h2>User Management</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="user-list">
+              <!-- User list populated by JS -->
+            </tbody>
+          </table>
+        </section>
+
+        <section class="system-logs">
+          <h2>Recent System Logs</h2>
+          <div class="log-list" id="system-logs">
+            <!-- Logs populated by JS -->
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="admin-dashboard.js"></script>
+</body>
+</html>

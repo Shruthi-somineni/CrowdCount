@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="admin-login.css">
+</head>
+
+<body>
+  <div class="admin-container">
+    <div class="admin-box">
+      <h1>Admin Login</h1>
+      <form id="adminLoginForm">
+        <div class="input-box">
+          <input type="text" id="admin-username" placeholder="Admin Username" required>
+          <i class='bx bxs-user'></i>
+        </div>
+
+        <div class="input-box">
+          <input type="password" id="admin-password" placeholder="Password" required>
+          <i class='bx bxs-lock-alt'></i>
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+        <p class="error-message" id="adminError"></p>
+        <p><a href="login.html">← Back to User Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="admin-login.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "tutly-auth-server",
+  "version": "0.1.0",
+  "description": "Simple auth server for local development (JWT)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.6",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

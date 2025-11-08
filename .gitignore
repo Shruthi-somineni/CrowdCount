@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+yolo_env/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln
+
+# Logs and runtime files
+*.log
+*.sqlite3
+
+# Ignore video and large model files
+*.avi
+*.mp4
+*.mov
+*.mkv
+runs/
+uploads/
+# Uploads, outputs, and large binaries
+uploads/
+*.mp4
+*.mov
+*.mkv
+*.pt
+yolov8n.pt
+
+# Config
+.env
+

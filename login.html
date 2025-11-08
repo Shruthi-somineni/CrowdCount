@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Signup Form</title>
+  
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <style>
+    .error-message {
+      color: red;
+      font-size: 13px;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .success-message {
+      color: green;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Login Form -->
+    <div class="form-box login">
+      <form id="login-form">
+        <h1>Login</h1>
+
+        <div class="input-box">
+          <input type="text" id="login-username" placeholder="Username or Email" required>
+          <i class='bx bxs-user'></i>
+        </div>
+
+        <div class="input-box">
+          <input type="password" id="login-password" placeholder="Password" required>
+          <i class='bx bxs-lock-alt'></i>
+          <span class="error-message"></span> <!-- ADD THIS -->
+        </div>
+
+        <div class="forgot-link">
+          <a href="forgot-password.html">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+
+        <p><a href="admin-login.html" class="admin-link">Admin Login</a></p>
+        
+
+        <div class="social-icons">
+          <a href="#"><i class='bx bxl-google'></i></a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="form-box register">
+      <form id="signup-form">
+        <!-- ✅ Success Message -->
+        <div id="signup-success" class="success-message" style="display:none;">Signup Successful!</div>
+
+        <h1>Sign Up</h1>
+
+        <div class="input-box">
+          <input type="text" id="signup-username" placeholder="Username" required>
+          <i class='bx bxs-user'></i>
+          <span id="username-error" class="error-message"></span>
+        </div>
+
+        <div class="input-box">
+          <input type="email" id="signup-email" placeholder="Email" required>
+          <i class='bx bxs-envelope'></i>
+          <span id="email-error" class="error-message"></span>
+        </div>
+
+        <div class="input-box">
+          <input type="password" id="signup-password" placeholder="Password" required>
+          <i class='bx bxs-lock-alt'></i>
+          <span id="password-error" class="error-message"></span>
+        </div>
+
+        <div class="input-box">
+          <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+          <i class='bx bxs-lock'></i>
+          <span id="confirm-error" class="error-message"></span>
+        </div>
+
+        <button type="submit" class="btn">Register</button>
+      </form>
+    </div>
+
+    <!-- Toggle Box -->
+    <div class="toggle-box">
+      <div class="toggle-panel toggle-left">
+        <h1>Hello, Welcome!</h1>
+        <p>Don't have an account?</p>
+        <button class="btn register-btn">Register</button>
+      </div>
+
+      <div class="toggle-panel toggle-right">
+        <h1>Welcome Back!</h1>
+        <p>Already have an account?</p>
+        <button class="btn login-btn">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

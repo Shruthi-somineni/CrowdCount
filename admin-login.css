@@ -1,0 +1,94 @@
+/* admin-login.css — clean dark glassy admin login page */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.admin-box {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2rem 3rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  width: 350px;
+  color: white;
+}
+
+.admin-box h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.input-box {
+  position: relative;
+  margin: 1rem 0;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 0.8rem 2.5rem 0.8rem 1rem;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.input-box i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.error-message {
+  color: #ffb4b4;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+a {
+  color: #dbeafe;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+a:hover {
+  text-decoration: underline;
+}
