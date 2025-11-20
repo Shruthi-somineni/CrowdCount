@@ -96,13 +96,16 @@
 
                 <!-- overlay counts for frontend UI (keeps in sync visually with server overlays) -->
                 <div id="overlayCounts" class="overlay-counts" aria-hidden="true"></div>
+                
+                <!-- 🟦 Live crowd video stream (for real-time YOLO detection) - positioned inside mediaWrap -->
+                <video id="liveVideo" autoplay muted loop controls style="display:none; max-width:100%; max-height:100%; object-fit:contain; border-radius:10px; position:absolute; top:0; left:0; width:100%; height:100%;" preload="auto">
+                  <!-- Source will be set dynamically by JavaScript -->
+                </video>
               </div>
 
               <!-- 🟩 Detection summary (added below image/video preview) -->
               <p id="detectionSummary" style="margin-top:10px; font-weight:600; color:#31c48d;"></p>
-
-              <!-- 🟦 Live crowd video stream (for real-time YOLO detection) -->
-              <video id="liveVideo" autoplay muted controls style="display:none; width:100%; border-radius:10px;"></video>
+              
               <p id="liveCountText" style="margin-top:10px; font-weight:600; color:#ffb020;"></p>
             </div>
 
@@ -115,6 +118,7 @@
                   <button id="startDrawBtn" class="btn-outline">Start Drawing</button>
                   <button id="saveZonesBtn" class="btn success">Save Zones</button>
                   <button id="clearZonesBtn" class="btn danger">Clear Zones</button>
+                  <span id="processingStatus" style="margin-left: 15px; font-weight: 600; color: #3b82f6; display: none;">⏳ Processing...</span>
                 </div>
               </div>
             </div>
@@ -128,14 +132,15 @@
             <ol class="instructions">
               <li>Upload a video or image (use the uploader).</li>
               <li>Click <strong>Start Drawing</strong>, enter a label, then drag on the preview to create rectangular zones.</li>
-              <li>Use <strong>Save Zones</strong> to store zones per feed. Preview uses saved zones.</li>
+              <li>Use <strong>Save Zones</strong> to store zones per feed.</li>
+              <li>Click <strong>Analysis</strong> tab to see people counts in each zone.</li>
             </ol>
             <hr>
             <h5>Zones</h5>
             <ul id="zonesList" class="zones-list"></ul>
             <hr>
-            <h5>Live Counts</h5>
-            <div id="zoneCountsPanel" class="counts-panel">No live stream</div>
+            <h5>👥 Live Counts</h5>
+            <div id="zoneCountsPanel" class="counts-panel">⏳ Draw zones and go to Analysis tab</div>
           </div>
         </aside>
       </section>

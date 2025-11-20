@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Test</title>
+</head>
+<body>
+  <h1>Debug Test Page</h1>
+  <button id="testBtn">Test Login API</button>
+  <div id="output" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+
+  <script>
+    console.log('✅ Debug page loaded');
+    
+    document.getElementById('testBtn').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      output.innerHTML = 'Testing...';
+      
+      try {
+        // Test 1: Health check
+        console.log('🔍 Testing health endpoint...');
+        const healthRes = await fetch('http://127.0.0.1:3000/api/health');
+        const healthData = await healthRes.json();
+        console.log('✅ Health check:', healthData);
+        output.innerHTML += '<p>✅ Server is running: ' + JSON.stringify(healthData) + '</p>';
+        
+        // Test 2: Try login
+        console.log('🔍 Testing login...');
+        const loginRes = await fetch('http://127.0.0.1:3000/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'testuser', password: 'password123' })
+        });
+        
+        const loginData = await loginRes.json();
+        console.log('✅ Login response:', loginData);
+        
+        if (loginRes.ok) {
+          output.innerHTML += '<p>✅ Login successful!</p>';
+          output.innerHTML += '<p>Access Token: ' + (loginData.accessToken ? 'Present' : 'Missing') + '</p>';
+          output.innerHTML += '<p>Refresh Token: ' + (loginData.refreshToken ? 'Present' : 'Missing') + '</p>';
+          
+          // Save tokens
+          localStorage.setItem('accessToken', loginData.accessToken);
+          localStorage.setItem('refreshToken', loginData.refreshToken);
+          output.innerHTML += '<p>✅ Tokens saved to localStorage</p>';
+          
+          // Try redirect
+          output.innerHTML += '<p>⏳ Redirecting to dashboard in 2 seconds...</p>';
+          setTimeout(() => {
+            console.log('🔄 Redirecting to dashboard...');
+            window.location.href = 'dashboard.html';
+          }, 2000);
+        } else {
+          output.innerHTML += '<p>❌ Login failed: ' + JSON.stringify(loginData) + '</p>';
+        }
+        
+      } catch (err) {
+        console.error('❌ Error:', err);
+        output.innerHTML += '<p>❌ Error: ' + err.message + '</p>';
+      }
+    });
+  </script>
+</body>
+</html>

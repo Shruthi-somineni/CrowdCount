@@ -3,11 +3,28 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const { DatabaseError } = require('./db');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+// ============================
+// Serve Static Files
+// ============================
+// Serve all static files (HTML, CSS, JS, images) from parent directory
+app.use(express.static(path.join(__dirname, '..')));
+
+// Serve login.html at root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'login.html'));
+});
+
+// Serve dashboard at /dashboard
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dashboard.html'));
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'; // prefer env
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'refresh-secret-change-me'; // prefer env
@@ -38,12 +55,29 @@ const validateEmail = (email) => {
   return email && email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
 };
 
+// ============================
+// Health Check Endpoint
+// ============================
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    message: 'Auth server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ============================
+// Authentication Endpoints
+// ============================
+
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Missing username or password' });
   try {
     const user = await db.getUserByUsernameOrEmail(username);
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    
+    console.log('✅ User found:', { id: user._id, username: user.username, email: user.email });
     
     // Check account status
     if (user.status === 'locked') {
@@ -55,16 +89,16 @@ app.post('/api/login', async (req, res) => {
     
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      await db.updateLoginAttempt('users', user.id, false);
+      await db.updateLoginAttempt('users', user._id, false);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
     // Reset login attempts on successful login
-    await db.updateLoginAttempt('users', user.id, true);
+    await db.updateLoginAttempt('users', user._id, true);
 
-    // Generate access token
+    // Generate access token (use _id for MongoDB)
     const accessToken = jwt.sign(
-      { sub: user.id, name: user.name, username: user.username },
+      { sub: user._id.toString(), name: user.name, username: user.username },
       JWT_SECRET,
       { expiresIn: ACCESS_TOKEN_EXPIRY }
     );
@@ -72,7 +106,9 @@ app.post('/api/login', async (req, res) => {
     // Generate refresh token
     const refreshTokenExpiry = new Date();
     refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days from now
-    const refreshToken = await db.createRefreshToken(user.id, null, refreshTokenExpiry);
+    const refreshToken = await db.createRefreshToken(user._id, null, refreshTokenExpiry);
+
+    console.log('✅ Login successful for:', user.username);
 
     res.json({ 
       accessToken,
@@ -80,7 +116,7 @@ app.post('/api/login', async (req, res) => {
       expiresIn: ACCESS_TOKEN_EXPIRY
     });
   } catch (err) {
-    console.error('Login error', err);
+    console.error('❌ Login error:', err);
     if (err instanceof DatabaseError) {
       if (err.code === 'ACCOUNT_LOCKED') {
         return res.status(403).json({ error: err.message });
@@ -91,12 +127,12 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Register endpoint (dev only - in-memory users)
-app.post('/api/register', async (req, res) => {
+// Signup endpoint (alias for register - frontend uses this name)
+app.post('/api/signup', async (req, res) => {
   const { username, password, name, email } = req.body;
   try {
     // Validate required fields
-    if (!username || !password || !name || !email) {
+    if (!username || !password || !email) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -112,33 +148,75 @@ app.post('/api/register', async (req, res) => {
 
     // Check if username or email already exists
     const existingUser = await db.getUserByUsernameOrEmail(username);
-    if (existingUser && (existingUser.username.toLowerCase() === username.toLowerCase() || existingUser.email.toLowerCase() === email.toLowerCase())) {
+    if (existingUser) {
       if (existingUser.username.toLowerCase() === username.toLowerCase()) {
         return res.status(409).json({ error: 'Username already exists' });
-      } else {
+      }
+      if (existingUser.email.toLowerCase() === email.toLowerCase()) {
         return res.status(409).json({ error: 'Email already registered' });
       }
     }
 
-    const newUser = await db.createUser({ username, password, name, email });
+    // Create new user
+    const newUser = await db.createUser({ 
+      username, 
+      password, 
+      name: name || username, 
+      email 
+    });
 
-    // Generate token
-    const token = jwt.sign({ 
-      sub: newUser.id, 
-      name: newUser.name, 
-      username: newUser.username,
+    console.log('✅ User created successfully:', { 
+      id: newUser.id, 
+      username: newUser.username, 
       email: newUser.email 
-    }, JWT_SECRET, { expiresIn: '2h' });
-    
-    res.json({ token });
+    });
+
+    // Generate access token (same as login)
+    const accessToken = jwt.sign(
+      { 
+        sub: newUser.id.toString(), 
+        name: newUser.name, 
+        username: newUser.username,
+        email: newUser.email 
+      },
+      JWT_SECRET,
+      { expiresIn: ACCESS_TOKEN_EXPIRY }
+    );
+
+    // Generate refresh token (same as login)
+    const refreshTokenExpiry = new Date();
+    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days from now
+    const refreshToken = await db.createRefreshToken(newUser.id, null, refreshTokenExpiry);
+
+    console.log('✅ Tokens generated for new user:', { 
+      accessToken: '✓', 
+      refreshToken: '✓',
+      expiresIn: ACCESS_TOKEN_EXPIRY 
+    });
+
+    res.json({ 
+      accessToken,
+      refreshToken,
+      expiresIn: ACCESS_TOKEN_EXPIRY,
+      message: 'Signup successful'
+    });
   } catch (err) {
-    console.error('Register error', err);
-    // Handle unique constraint errors
-    if (err && err.message && err.message.includes('UNIQUE')) {
+    console.error('❌ Register error:', err);
+    // Handle MongoDB duplicate key errors
+    if (err.code === 11000 || (err.message && err.message.includes('duplicate'))) {
       return res.status(409).json({ error: 'Username or email already exists' });
     }
-    res.status(500).json({ error: 'Server error' });
+    if (err instanceof DatabaseError) {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
+});
+
+// Register endpoint (alias for signup - for backward compatibility)
+app.post('/api/register', (req, res) => {
+  // Forward to signup endpoint
+  req.app._router.stack.find(r => r.route && r.route.path === '/api/signup').route.stack[0].handle(req, res);
 });
 
 app.post('/api/verify', (req, res) => {
@@ -165,6 +243,8 @@ app.post('/api/admin-login', async (req, res) => {
     const admin = await db.getAdminByUsername(username);
     if (!admin) return res.status(401).json({ error: 'Invalid admin credentials' });
     
+    console.log('✅ Admin found:', { id: admin._id, username: admin.username });
+    
     // Check account status
     if (admin.status === 'locked') {
       return res.status(403).json({ error: 'Account locked. Please contact support.' });
@@ -175,17 +255,17 @@ app.post('/api/admin-login', async (req, res) => {
     
     const match = await bcrypt.compare(password, admin.password);
     if (!match) {
-      await db.updateLoginAttempt('admins', admin.id, false);
+      await db.updateLoginAttempt('admins', admin._id, false);
       return res.status(401).json({ error: 'Invalid admin credentials' });
     }
     
     // Reset login attempts on successful login
-    await db.updateLoginAttempt('admins', admin.id, true);
+    await db.updateLoginAttempt('admins', admin._id, true);
 
-    // Generate access token
+    // Generate access token (use _id for MongoDB)
     const accessToken = jwt.sign(
       { 
-        sub: admin.id, 
+        sub: admin._id.toString(), 
         name: admin.name, 
         username: admin.username,
         role: 'admin'
@@ -197,7 +277,9 @@ app.post('/api/admin-login', async (req, res) => {
     // Generate refresh token
     const refreshTokenExpiry = new Date();
     refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days from now
-    const refreshToken = await db.createRefreshToken(null, admin.id, refreshTokenExpiry);
+    const refreshToken = await db.createRefreshToken(null, admin._id, refreshTokenExpiry);
+
+    console.log('✅ Admin login successful for:', admin.username);
 
     res.json({ 
       accessToken,
@@ -205,7 +287,7 @@ app.post('/api/admin-login', async (req, res) => {
       expiresIn: ACCESS_TOKEN_EXPIRY
     });
   } catch (err) {
-    console.error('Admin login error', err);
+    console.error('❌ Admin login error:', err);
     if (err instanceof DatabaseError) {
       if (err.code === 'ACCOUNT_LOCKED') {
         return res.status(403).json({ error: err.message });
@@ -286,6 +368,55 @@ app.post('/api/logout', async (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Admin middleware to verify admin role
+const authenticateAdmin = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Missing token' });
+  }
+  
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (payload.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    req.admin = payload;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
+
+// Admin endpoint: Get all users
+app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
+  try {
+    const users = await db.getAllUsers();
+    console.log(`✅ Admin fetched ${users.length} users`);
+    res.json({ users, total: users.length });
+  } catch (err) {
+    console.error('❌ Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Admin endpoint: Delete user
+app.delete('/api/admin/users/:userId', authenticateAdmin, async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await db.deleteUser(userId);
+    if (!result) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log(`✅ Admin deleted user: ${userId}`);
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('❌ Error deleting user:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 

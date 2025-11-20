@@ -1,16 +1,20 @@
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const { ObjectId } = require('mongodb');
 
 function getSecret() {
   return process.env.JWT_SECRET || 'dev-secret-change-me';
 }
 
-// Helper to check user/admin status
+// Helper to check user/admin status (MongoDB version)
 async function checkAccountStatus(id, isAdmin) {
   try {
-    const table = isAdmin ? 'admins' : 'users';
-    const query = `SELECT status FROM ${table} WHERE id = ?`;
-    const result = await db.db.getAsync(query, [id]);
+    const collection = isAdmin ? 'admins' : 'users';
+    const database = await db.db.connect();
+    
+    const result = await database.collection(collection).findOne({
+      _id: new ObjectId(id)
+    });
     
     if (!result) {
       throw new Error('Account not found');
@@ -23,6 +27,8 @@ async function checkAccountStatus(id, isAdmin) {
     if (result.status === 'inactive') {
       throw new Error('Account is inactive');
     }
+    
+    return result;
   } catch (err) {
     throw new Error(err.message || 'Error checking account status');
   }

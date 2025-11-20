@@ -1,4 +1,9 @@
 // ===============================
+// DEBUG: Script Loading
+// ===============================
+console.log('🔧 auth.js loaded successfully');
+
+// ===============================
 // Helper Functions
 // ===============================
 function showError(inputId, msg) {
@@ -78,32 +83,52 @@ if (signupForm) {
       const res = await fetch('http://127.0.0.1:3000/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password })
+        body: JSON.stringify({ username, email, password, name: username })
       });
 
       const data = await res.json();
+      
       if (res.ok) {
-  successDiv.textContent = "✔ Signup successful!";
-  successDiv.style.display = 'block';
-  successDiv.style.color = '#16a34a';
-  successDiv.style.fontWeight = 'bold';
-  successDiv.style.marginBottom = '10px';
-  successDiv.style.textAlign = 'center';
+        console.log("✅ Signup successful:", data);
 
-  // ✅ Wait 2 seconds, then switch back to login view
-  setTimeout(() => {
-    const container = document.querySelector('.container');
-    container.classList.remove('active');  // show login form
-    signupForm.reset();
-    successDiv.style.display = 'none';
-  }, 2000);
-}
- else if (data.error) {
+        // ✅ Save tokens to localStorage (same as login)
+        try {
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
+
+          const expiryMs = data.expiresIn
+            ? Date.now() + parseTokenExpiry(data.expiresIn)
+            : Date.now() + 15 * 60 * 1000;
+
+          localStorage.setItem('tokenExpiry', expiryMs);
+
+          console.log("✅ Tokens saved to localStorage after signup");
+        } catch (storageErr) {
+          console.error("❌ Error saving tokens:", storageErr);
+          showError('signup-email', 'Failed to save authentication data');
+          return;
+        }
+
+        // ✅ Show success and immediate redirect
+        successDiv.textContent = "✔ Signup successful! Redirecting...";
+        successDiv.style.display = 'block';
+        successDiv.style.color = '#16a34a';
+        successDiv.style.fontWeight = 'bold';
+        successDiv.style.marginBottom = '10px';
+        successDiv.style.textAlign = 'center';
+
+        // ✅ Immediate redirect
+        console.log("🔄 Signup successful - redirecting to dashboard...");
+        setTimeout(() => window.location.href = '/dashboard.html', 500);
+      } else if (data.error) {
+        console.log("❌ Signup failed:", data);
         if (data.error.includes('Email')) showError('signup-email', data.error);
-        if (data.error.includes('Username')) showError('signup-username', data.error);
+        else if (data.error.includes('Username')) showError('signup-username', data.error);
+        else if (data.error.includes('Password')) showError('signup-password', data.error);
+        else showError('signup-email', data.error);
       }
     } catch (err) {
-      console.error(err);
+      console.error("❌ Signup error:", err);
       showError('signup-email', 'Server not reachable');
     }
   });
@@ -112,9 +137,13 @@ if (signupForm) {
 // LOGIN HANDLER
 // ===============================
 const loginForm = document.getElementById('login-form');
+console.log('🔍 Looking for login form...', loginForm ? 'FOUND' : 'NOT FOUND');
+
 if (loginForm) {
+  console.log('✅ Login form found - attaching event listener');
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log('🚀 Login form submitted!');
 
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
@@ -158,7 +187,8 @@ if (loginForm) {
           console.log("✅ Tokens saved to localStorage:", {
             accessToken: !!localStorage.getItem('accessToken'),
             refreshToken: !!localStorage.getItem('refreshToken'),
-            tokenExpiry: localStorage.getItem('tokenExpiry')
+            tokenExpiry: localStorage.getItem('tokenExpiry'),
+            expiryDate: new Date(expiryMs).toISOString()
           });
         } catch (storageErr) {
           console.error("❌ Error saving tokens:", storageErr);
@@ -171,16 +201,16 @@ if (loginForm) {
         // ✅ Success message + redirect
         const successMsg = document.createElement('div');
         successMsg.className = 'success-message';
-        successMsg.textContent = '✅ Login successful!';
+        successMsg.textContent = '✅ Login successful! Redirecting...';
         successMsg.style.color = '#16a34a';
         successMsg.style.fontWeight = 'bold';
         successMsg.style.marginBottom = '10px';
         successMsg.style.textAlign = 'center';
         loginForm.insertBefore(successMsg, loginForm.firstChild);
 
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 1000);
+        // ✅ Immediate redirect after saving tokens
+        console.log("� Redirecting to dashboard now...");
+        window.location.href = '/dashboard.html';
       } else {
         console.log("❌ Login failed:", data);
         showError('login-password', data.error || 'Invalid credentials');

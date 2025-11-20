@@ -1,86 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin Dashboard - Crowd Analytics</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Crowd Analytics</title>
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <script>
+    // Protect dashboard - redirect if not logged in
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("adminAccessToken");
+    if (!token) {
+      console.log('❌ No admin token found, redirecting to login');
+      window.location.href = "admin-login.html";
+    } else {
+      console.log('✅ Admin token found');
+    }
+  </script>
 </head>
+
 <body>
-  <div class="dashboard-wrapper">
+  <div class="dashboard-container">
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">Admin Panel</div>
-      <div class="role">SYSTEM ADMINISTRATION</div>
-      <nav>
-        <ul>
-          <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-          <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
-          <li><a href="#"><i class="fas fa-cog"></i> System Settings</a></li>
-          <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
-          <li><a href="#"><i class="fas fa-file-alt"></i> Logs</a></li>
-          <li><a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-      </nav>
+      <div class="logo">
+        <i class="fa-solid fa-chart-pie"></i>
+        <h2>Crowd<span>Analytics</span></h2>
+      </div>
+      <ul class="menu">
+        <li id="menuDashboard" class="active"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li id="menuUsers"><i class="fa-solid fa-users"></i> Users</li>
+        <li id="menuFeeds"><i class="fa-solid fa-video"></i> Feeds</li>
+      </ul>
+      <button class="logout-btn" id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
     </aside>
-    <main class="dashboard-main">
-      <header class="dashboard-header">
-        <div class="header-top">
-          <h1>Admin Dashboard</h1>
-          <div class="header-actions">
-            <button id="addUser" class="btn secondary"><i class="fas fa-user-plus"></i> Add User</button>
-            <button id="systemBackup" class="btn secondary"><i class="fas fa-database"></i> Backup System</button>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value" id="total-users">0</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Active Cameras</div>
-            <div class="stat-value" id="active-cameras">0</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">System Health</div>
-            <div class="stat-value" id="system-health">100%</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Daily Reports</div>
-            <div class="stat-value" id="daily-reports">0</div>
-          </div>
-        </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="welcome-text">👋 Hi, Admin! Welcome to your Dashboard</div>
       </header>
 
-      <div class="dashboard-columns">
-        <section class="user-management-section">
-          <h2>User Management</h2>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="user-list">
-              <!-- User list populated by JS -->
-            </tbody>
-          </table>
-        </section>
-
-        <section class="system-logs">
-          <h2>Recent System Logs</h2>
-          <div class="log-list" id="system-logs">
-            <!-- Logs populated by JS -->
+      <!-- Dashboard Section -->
+      <section id="dashboardSection" class="content-section">
+        <div class="cards">
+          <div class="card blue">
+            <div class="card-content">
+              <div class="card-icon"><i class="fa-solid fa-user"></i></div>
+              <div class="card-info">
+                <h2 id="totalUsers">10</h2>
+                <p>Total Users</p>
+              </div>
+            </div>
+            <a href="#" id="showUsers" class="more-info">More info <i class="fa-solid fa-arrow-right"></i></a>
           </div>
-        </section>
-      </div>
+
+          <div class="card green">
+            <div class="card-content">
+              <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <div class="card-info">
+                <h2 id="totalFeeds">7</h2>
+                <p>Total Feeds</p>
+              </div>
+            </div>
+            <a href="#" class="more-info">More info <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+
+          <div class="card purple">
+            <div class="card-content">
+              <div class="card-icon"><i class="fa-solid fa-brain"></i></div>
+              <div class="card-info">
+                <h2>98%</h2>
+                <p>Detection Accuracy</p>
+              </div>
+            </div>
+            <a href="#" class="more-info">More info <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Management Section -->
+      <section id="usersSection" class="content-section hidden">
+        <div class="table-container">
+          <div class="table-header">
+            <h3>Users List</h3>
+            <button class="add-user-btn"><i class="fa-solid fa-user-plus"></i> Add User</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <tr>
+                  <td>1</td>
+                  <td>admin</td>
+                  <td>Admin</td>
+                  <td>User</td>
+                  <td>admin@example.com</td>
+                  <td>Admin</td>
+                  <td>
+                    <button class="edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>shruthi</td>
+                  <td>Shruthi</td>
+                  <td>Somineni</td>
+                  <td>shruthi@gmail.com</td>
+                  <td>User</td>
+                  <td>
+                    <button class="edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
-  <script src="admin-dashboard.js"></script>
+
+  <script>
+    // API Configuration - Use Flask server for admin operations
+    const API_BASE = "http://127.0.0.1:5000";
+    const AUTH_API = "http://127.0.0.1:3000";
+    
+    // Get admin token
+    function getAdminToken() {
+      return localStorage.getItem("adminToken") || localStorage.getItem("adminAccessToken");
+    }
+    
+    console.log('🔑 Admin token:', getAdminToken());
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminAccessToken");
+      localStorage.removeItem("adminRefreshToken");
+      window.location.href = "admin-login.html";
+    });
+
+    // Sidebar menu switching
+    const dashboardSection = document.getElementById("dashboardSection");
+    const usersSection = document.getElementById("usersSection");
+    const menuDashboard = document.getElementById("menuDashboard");
+    const menuUsers = document.getElementById("menuUsers");
+    const showUsers = document.getElementById("showUsers");
+
+    function showSection(sectionToShow) {
+      document.querySelectorAll(".content-section").forEach(sec => sec.classList.add("hidden"));
+      sectionToShow.classList.remove("hidden");
+
+      document.querySelectorAll(".menu li").forEach(item => item.classList.remove("active"));
+      if (sectionToShow === dashboardSection) menuDashboard.classList.add("active");
+      if (sectionToShow === usersSection) {
+        menuUsers.classList.add("active");
+        loadUsers(); // Load users when switching to users section
+      }
+    }
+
+    menuDashboard.addEventListener("click", () => showSection(dashboardSection));
+    menuUsers.addEventListener("click", () => showSection(usersSection));
+    showUsers.addEventListener("click", (e) => {
+      e.preventDefault();
+      showSection(usersSection);
+    });
+
+    // Load users from MongoDB
+    async function loadUsers() {
+      try {
+        const token = getAdminToken();
+        console.log('📡 Fetching users from MongoDB...');
+        console.log('🔑 Using token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+        console.log('🌐 API URL:', `${API_BASE}/api/admin/users`);
+        
+        const response = await fetch(`${API_BASE}/api/admin/users`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('📥 Response status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('❌ Error response:', errorData);
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Users loaded:', data);
+
+        // Update total users count
+        document.getElementById('totalUsers').textContent = data.users.length;
+
+        // Populate user table
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
+
+        data.users.forEach((user, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.username}</td>
+            <td>${user.name || 'N/A'}</td>
+            <td>${user.lastName || 'N/A'}</td>
+            <td>${user.email}</td>
+            <td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}">${user.role || 'user'}</span></td>
+            <td>
+              <button class="edit-btn" onclick="editUser('${user._id}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+              <button class="delete-btn" onclick="deleteUser('${user._id}', '${user.username}')"><i class="fa-solid fa-trash"></i> Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('❌ Error loading users:', error);
+        document.getElementById('userTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; color: #ef4444; padding: 20px;">
+              ⚠️ Error loading users: ${error.message}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Edit user (placeholder)
+    function editUser(userId) {
+      alert(`Edit user functionality coming soon! User ID: ${userId}`);
+    }
+
+    // Delete user
+    async function deleteUser(userId, username) {
+      if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${getAdminToken()}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        alert('User deleted successfully!');
+        loadUsers(); // Reload users list
+      } catch (error) {
+        console.error('❌ Error deleting user:', error);
+        alert('Failed to delete user: ' + error.message);
+      }
+    }
+
+    // Load dashboard statistics on page load
+    window.addEventListener('load', () => {
+      loadUsers(); // Load initial user count
+    });
+  </script>
 </body>
 </html>
+

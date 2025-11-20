@@ -1,0 +1,283 @@
+/* General Styles */
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #f4f7fb;
+  color: #333;
+  display: flex;
+  height: 100vh;
+}
+
+.dashboard-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #0d1117, #1a1f2c);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar sections */
+.sidebar .logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sidebar .logo i {
+  font-size: 1.8rem;
+  color: #00bfff;
+}
+
+.sidebar .logo h2 {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.sidebar .logo span {
+  color: #00bfff;
+}
+
+/* ✅ Keep menu in middle */
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1; /* allow it to stretch naturally */
+}
+
+.menu li {
+  padding: 12px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  transition: 0.3s;
+}
+
+.menu li i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.menu li:hover,
+.menu li.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding-left: 15px;
+}
+
+/* ✅ Keep logout button pinned to bottom neatly */
+.logout-btn {
+  background: #ff4757;
+  border: none;
+  padding: 10px;
+  color: white;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: auto; /* pushes button to bottom */
+}
+
+.logout-btn:hover {
+  background: #e84118;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 1.5rem 2rem;
+  background-color: #f4f7fb;
+  overflow-y: auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.welcome-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Cards Layout */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card .card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card .card-icon {
+  font-size: 2.5rem;
+  opacity: 0.2;
+}
+
+.card .card-info h2 {
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.card .card-info p {
+  margin: 0;
+  color: #555;
+}
+
+/* Colored cards */
+.card.blue { background: linear-gradient(135deg, #00b4d8, #0077b6); color: white; }
+.card.green { background: linear-gradient(135deg, #38b000, #008000); color: white; }
+.card.purple { background: linear-gradient(135deg, #8338ec, #7209b7); color: white; }
+
+.more-info {
+  display: inline-block;
+  margin-top: 1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.more-info i {
+  margin-left: 5px;
+}
+
+/* Scrollbar hidden for clean look */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
+}
+/* Hide/Show sections */
+.content-section.hidden {
+  display: none;
+}
+
+/* Table styling (from your Users page) */
+.table-container {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.add-user-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+.add-user-btn:hover {
+  background-color: #0056b3;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+}
+
+.user-table th, .user-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-table th {
+  background: #f1f3f6;
+  font-weight: 600;
+}
+
+.user-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.edit-btn, .delete-btn {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-size: 0.9rem;
+  margin-right: 5px;
+}
+
+.edit-btn { background-color: #f1c40f; }
+.edit-btn:hover { background-color: #d4ac0d; }
+.delete-btn { background-color: #e74c3c; }
+.delete-btn:hover { background-color: #c0392b; }
+
+/* Badge styles */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-admin {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.badge-user {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+  overflow-x: auto;
+}
+
